@@ -32,7 +32,7 @@ setInterval(() => {
     } //徽标内容参考站内教程
     //其余时间打烊
     else{
-      currentTimeHtml ="<img class='boardsign' src='https://img.shields.io/badge/Y.lin-%E6%89%93%E7%83%8A%E4%BA%86-orange?style=social&logo=Aiqfome' title='这个点了应该去睡觉啦，熬夜对身体不好哦'><div id='runtime'>" + time[0] + ' YEAR ' + time[1] + ' DAYS ' + time[2] + ' : ' + time[3] + ' : ' + time[4] + '</div>'; //徽标内容参考站内教程
+      currentTimeHtml ="<img class='boardsign' src='https://img.shields.io/badge/Y.lin-%E6%89%93%E7%83%8A%E4%BA%86-lightgrey?style=?style=flat-square&logo=Aiqfome' title='这个点了应该去睡觉啦，熬夜对身体不好哦'><div id='runtime'>" + time[0] + ' YEAR ' + time[1] + ' DAYS ' + time[2] + ' : ' + time[3] + ' : ' + time[4] + '</div>'; //徽标内容参考站内教程
     }
     //覆写挂载标签的内容
     document.getElementById("workboard").innerHTML = currentTimeHtml;
