@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>XSStrike工具</title>
+      <link href="/2023/03/17/XSStrike%E5%B7%A5%E5%85%B7/"/>
+      <url>/2023/03/17/XSStrike%E5%B7%A5%E5%85%B7/</url>
+      
+        <content type="html"><![CDATA[<h1>XSStrike</h1><blockquote><p>XSStrike 是一款用于探测并利用XSS漏洞的脚本</p><p>XSStrike目前所提供的产品特性：</p><blockquote><p>对参数进行模糊测试之后构建合适的payload</p><p>使用payload对参数进行穷举匹配</p><p>内置爬虫功能</p><p>检测并尝试绕过WAF</p><p>同时支持GET及POST方式</p><p>大多数payload都是由作者精心构造</p><p>误报率极低</p></blockquote></blockquote><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">下载地址：https://github.com/s0md3v/XSStrike<br></code></pre></td></tr></table></figure><p>安装依赖模块</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">pip install -r requirements.txt<br></code></pre></td></tr></table></figure><h2 id="使用">使用</h2><h3 id="1-测试一个使用GET方法的网页：">1.测试一个使用GET方法的网页：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;&quot;<br></code></pre></td></tr></table></figure><h3 id="2-测试POST数据：">2.测试POST数据：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/search.php&quot; --data &quot;q=query&quot;<br>python xsstrike.py -u &quot;http://example.com/search.php&quot; --data &#x27;&#123;&quot;q&quot;:&quot;query&quot;&#125; --json&#x27;<br></code></pre></td></tr></table></figure><h3 id="3-测试URL路径：">3.测试URL路径：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/search/form/query&quot; --path<br></code></pre></td></tr></table></figure><h3 id="4-从目标网页开始搜寻目标并进行测试">4.从目标网页开始搜寻目标并进行测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/page.php&quot; --crawl<br></code></pre></td></tr></table></figure><h4 id="可以指定爬网的深度-默认2：-l">可以指定爬网的深度,默认2：-l</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/page.php&quot; --crawl -l 3<br></code></pre></td></tr></table></figure><h3 id="5-如果要测试文件中的URL，或者只是想添加种子进行爬网，则可以使用该–seeds选项：">5.如果要测试文件中的URL，或者只是想添加种子进行爬网，则可以使用该–seeds选项：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py --seeds urls.txt<br></code></pre></td></tr></table></figure><h3 id="6-查找隐藏的参数：">6.查找隐藏的参数：</h3><p>通过解析HTML和暴力破解来查找隐藏的参数</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/page.php&quot; --params<br></code></pre></td></tr></table></figure><h3 id="7-盲XSS：爬行中使用此参数可向每个html表单里面的每个变量插入xss代码">7.盲XSS：爬行中使用此参数可向每个html表单里面的每个变量插入xss代码</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u http://example.com/page.php?q=query --c --rawl --blind<br></code></pre></td></tr></table></figure><h3 id="8-模糊测试–fuzzer">8.模糊测试–fuzzer</h3><p>该模糊器旨在测试过滤器和Web应用程序防火墙，可使用-d选项将延迟设置为1秒。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/search.php?q=query&quot; --fuz<br></code></pre></td></tr></table></figure><h3 id="9-跳过DOM扫描">9.跳过DOM扫描</h3><p>在爬网时可跳过DOM XSS扫描，以节省时间</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py -u &quot;http://example.com/search.php?q=query&quot; --skip-dom<br></code></pre></td></tr></table></figure><p>10.更新：</p><p>如果跟上–updata选项，XSStrike将检查更新。如果有更新的版本可用，XSStrike将下载更新并将其合并到当前目录中，而不会覆盖其他文件。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">python xsstrike.py --update<br></code></pre></td></tr></table></figure>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 工具 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>edusrc_信息泄露</title>
       <link href="/2023/03/09/%E6%B9%96%E5%8D%97%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%A6/"/>
       <url>/2023/03/09/%E6%B9%96%E5%8D%97%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%A6/</url>
@@ -67,6 +86,8 @@
       
       
         <tags>
+            
+            <tag> 工具 </tag>
             
             <tag> 命令 </tag>
             
