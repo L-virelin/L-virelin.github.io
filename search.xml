@@ -11,19 +11,19 @@
         <content type="html"><![CDATA[<blockquote><p>安全术语你得知道些吧！</p><p>他们之间有什么区别和联系呢？</p></blockquote><h1>POC</h1><p>POC（Proof of Concept）漏洞验证。即通过一段说明或者一个攻击的样例,使得能够确认这个漏洞是真实存在的。（<strong>侧重于验证是否存在</strong>） 如，我们在验证站点是否存在xss漏洞时，常用下面命令来验证。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">&lt;script&gt;alert(&#x27;94&#x27;)&lt;/script&gt;  <br></code></pre></td></tr></table></figure><p>这便是最简单常用的poc。</p><h1>EXP</h1><p>EXP（Exploit）漏洞利用是指由攻击者或渗透测试者利用一个系统、应用或服务中的安全漏洞,所进行的攻击行为。攻击者使用渗透攻击去入侵系统时,往往会造成开发者所没有预期到的一种特殊结果。流行的渗透攻击技术包括缓冲区溢出、web应用程序漏洞攻击(比如代码执行、命令执行),及利用配置错误等。通常所说的EXP即一段对漏洞如何利用的详细说明或者一个演示的漏洞攻击代码,（<strong>意味着该漏洞存在并有公开的利用方式</strong>）可以使得读者完全了解漏洞的机理以及利用的方法。如，之前宝塔pma漏洞，永恒之蓝等漏洞的利用脚本。</p><h1>Payload</h1><p>Payload(攻击载荷)是我们期望目标系统在被渗透攻击之后去执行的代码,在Metasploit框架中可以自由地选择、传送和植入。例如,反弹式shel是种从目标主机到攻击主机创建网络连接,并提供 Windows命令行She的攻击载荷,而 bindshel攻击载荷则在目标主机上将命令行she绑定到打开的监听端口,攻击者可以连接这些端口来取得shel交互。攻击载荷也可能是简单的在目标操作系统上执行一些命令,如添加用户账号等。如，我们利用msf或cs生成的各种平台的shell，通常就是指Payload。</p><h1>Shellcode</h1><p>shellcode是一小段代码，用于利用软件漏洞作为有效载荷。它之所以被称为“shellcode”，是因为它通常启动一个命令shell，攻击者可以从这个命令shell控制受损的计算机，但是执行类似任务的任何代码都可以被称为shellcode。因为有效载荷（payload）的功能不仅限于生成shell。简单来说：shellcode为16进制的机器码，是一段执行某些动作的机器码。如通常我们利用加载shellcode的方法来逃逸安全软件的查杀。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">#include &lt;Windows.h&gt;<br>#include &lt;stdio.h&gt;<br>unsigned char buf[] =<br>&quot;你的shellcode&quot;;<br>#pragma comment(linker, &quot;/subsystem:\&quot;Windows\&quot; /entry:\&quot;mainCRTStartup\&quot;&quot;)<br>//windows控制台程序不出黑窗口<br>int main()<br>&#123;<br> ((void(*)(void)) &amp; buf)();<br>&#125;<br></code></pre></td></tr></table></figure><h1>0Day</h1><p>0Day即零日漏洞或零时差漏洞(zero- dayexploit)通常是指还没有补丁的安全漏洞,零日攻击或零时差攻击(英语zero- dayattack)则是指利用这种漏洞进行的攻击。提供该漏洞细节或者利用程序的人通常是该漏洞的发现者。零日漏洞的利用程序对网络安全具有巨大威胁,因此零日漏洞不但是黑客的最爱,掌握多少零日漏洞也成为评价黑客技术水平的一个重要参数。如之前提到过的Java反序列化漏洞、OpenSSL心脏滴血漏洞、永恒之蓝、以及国内很多CMS的漏洞（dedecms phpcms等）</p>]]></content>
       
       
+      <categories>
+          
+          <category> 渗透 </category>
+          
+      </categories>
       
-        <tags>
-            
-            <tag> 命令 </tag>
-            
-        </tags>
       
     </entry>
     
     
     
     <entry>
-      <title></title>
+      <title>信息收集_wn</title>
       <link href="/2023/08/11/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_wn/"/>
       <url>/2023/08/11/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_wn/</url>
       
