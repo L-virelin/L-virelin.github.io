@@ -4,13 +4,25 @@
   
     
     <entry>
-      <title></title>
+      <title>MD5 绕过的一些思路</title>
       <link href="/2023/10/19/MD5%20%E7%BB%95%E8%BF%87%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%9D%E8%B7%AF/"/>
       <url>/2023/10/19/MD5%20%E7%BB%95%E8%BF%87%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%9D%E8%B7%AF/</url>
       
         <content type="html"><![CDATA[<h1>MD5 绕过的一些思路</h1><h2 id="常用的0e绕过">常用的0e绕过</h2><blockquote><p>0e开头的字符串在参与比较时,会被当做科学计数法,结果转换为0</p></blockquote><ul><li>QNKCDZO</li><li>240610708</li><li>s878926199a</li><li>s155964671a</li><li>s214587387a</li><li>s214587387a</li><li>s1091221200a</li><li>byGcY</li><li>sonZ7y</li><li>aabg7XSs</li><li>aabC9RqS</li></ul><p>这些字符串的 md5 值都是 0e 开头，在 php 弱类型比较中判断为相等</p><h2 id="数组绕过">数组绕过</h2><blockquote><p>md5不能加密数组,传入数组会报错,但会继续执行并且返回结果为null</p></blockquote><p>比如将两个数组的md5值进行比较</p><figure class="highlight php"><table><tr><td class="code"><pre><code class="hljs php">a[]=a&amp;b[]=b <br><span class="hljs-title function_ invoke__">md5</span>(a[]=<span class="hljs-number">1</span>) === <span class="hljs-title function_ invoke__">md5</span>(b[]=<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure><p>由于md5函数无法处理数组,会返回null,所以md5加密后的结果是下面这样</p><figure class="highlight php"><table><tr><td class="code"><pre><code class="hljs php"><span class="hljs-literal">null</span> === <span class="hljs-literal">null</span><br></code></pre></td></tr></table></figure><p>结果返回true,也就是说数组的md5值进行比较时,结果相等</p><p>需要注意的是0e绕过只能绕过弱类型比较(==),而数组绕过不只可以绕过弱类型比较,还可以绕过强类型比较(===)</p><h2 id="MD5与SQL注入">MD5与SQL注入</h2><p>可以了解一下MySQL中的一些数值比较特征。</p><ol><li><p>当数字和字符串比较时，若字符串的数字部分（需要从头开始）和数字是相同的，那么则返回的是true。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs mysql">select if(1=&quot;1a&quot;,&quot;相等&quot;,&quot;不相等&quot;) as test;<br></code></pre></td></tr></table></figure><p>if（exp1,stat1,stat2）:类似于高级语言中三元运算符。当exp1为true的是否返回stat1，为false返回stat2</p></li><li><p>以数字开头的字符串，若开头的字符不是0，那么在做逻辑运算的时候返回的是1，也就是true。</p></li></ol><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs mysql">select * from user where password =&#x27;&#x27;or&#x27;1234a&#x27;;<br></code></pre></td></tr></table></figure><!--"1234a"会被当做true对待。而任何数和true做逻辑或运算返回的值都是true。--><p>md5($password,true)的漏洞</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs mysql">select * from usera where username = &#x27;admin&#x27; and password = md5($pass,true)<br></code></pre></td></tr></table></figure><p>对特殊的<strong>字符串</strong>进行md5后能够与 &quot;or&quot;加上一个非0的字符就可以绕过</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs plaintext">ffifdyop<br></code></pre></td></tr></table></figure><p>ffifdyop的MD5加密结果是 276f722736c95d99e921722cf9ed621c</p><p>经过MySQL编码后会变成’or’6xxx,使SQL恒成立,相当于万能密码,可以绕过md5()函数的加密</p>]]></content>
       
       
+      <categories>
+          
+          <category> 工具 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 命令 </tag>
+            
+        </tags>
       
     </entry>
     
@@ -71,9 +83,9 @@
       
         <tags>
             
-            <tag> 工具 </tag>
-            
             <tag> 命令 </tag>
+            
+            <tag> 工具 </tag>
             
             <tag> 内网 </tag>
             
@@ -163,9 +175,9 @@
       
         <tags>
             
-            <tag> 工具 </tag>
-            
             <tag> 命令 </tag>
+            
+            <tag> 工具 </tag>
             
         </tags>
       
@@ -244,9 +256,9 @@
       
         <tags>
             
-            <tag> 工具 </tag>
-            
             <tag> 命令 </tag>
+            
+            <tag> 工具 </tag>
             
         </tags>
       
